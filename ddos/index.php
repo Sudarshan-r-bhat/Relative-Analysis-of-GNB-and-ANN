@@ -1,0 +1,322 @@
+<?php session_start();
+require_once('dbconnection.php');
+
+//Code for Registration 
+if(isset($_POST['signup']))
+{
+	$username=$_POST['username'];
+	$password=$_POST['password'];
+	$cpassword=$_POST['cpassword'];
+	$email=$_POST['email'];
+	
+	
+	$msg=mysqli_query($con,"insert into ddos(username,password,cpassword,email) values('$username','$password','$cpassword','$email')");
+if($msg)
+{
+	echo "<script>alert('Register successfully');</script>";
+}
+}
+if(isset($_POST['login']))
+{
+	$email=$_POST['email'];
+	$password=$_POST['password'];
+
+	$query=mysqli_query($con,"select * from ddos where email='$email' and password='$password'") or die(mysqli_error());
+	$str = "";
+	$characters = array_merge(range('A','Z'), range('a','z'), range('0','9'));
+	$max = count($characters) - 1;
+	for ($i = 0; $i < 6; $i++) {
+	$rand = mt_rand(0, $max);
+	$str .= $characters[$rand]; }
+	$sqlotp = "update ddos set otp='$str' where email='$email' and password='$password'";
+	mysqli_query($con,$sqlotp);
+	
+	 if(mysqli_num_rows($query)==1)
+	 {
+		$message='Dear <b>'.$username.'</b>,<br/><br/>
+				We have sent the OTP for your account at '.$username.'.<br/><br/>
+				To Log into your Account:
+				<ul><li>Copy this OTP : <b>'.$str.'<b><br></li>
+				<li>Type or Paste the OTP within 60 Seconds.</li>
+				<li>and Click on "Next" Button.</li>
+				</ul><br/>
+				<br/>
+				
+				';
+		require 'PHPMailer-master/PHPMailerAutoload.php';
+
+		$mail = new PHPMailer();
+
+		//$mail->SMTPDebug = 3;                               // Enable verbose debug output
+
+		$mail->isSMTP();  
+		$mail->SMTPDebug=0;                                    // Set mailer to use SMTP
+		$mail->SMTPAuth=true;
+		$mail->SMTPSecure = 'ssl'; 
+		$mail->Port = 465;
+		$mail->Host = 'smtp.gmail.com';                 // Specify main and backup SMTP servers                       
+		$mail->Username = 'gulfgarments456@gmail.com';                 // SMTP username
+		$mail->Password = 'gulfstream456';                           // SMTP password                                              
+		$mail->setFrom('gulfgarments456@gmail.com', 'DDoS Attack');
+		$mail->addAddress($email);     // Add a recipient
+		$mail->Subject = 'DDoS - OTP';
+		$mail->Body    = 'This is the HTML message body <b>in bold!</b>';
+		$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+		$mail->MsgHTML($message);	
+		if(!$mail->send()) {
+			echo 'Message could not be sent.';
+		echo 'Mailer Error: ' . $mail->ErrorInfo;}
+		
+	header('location:Adminotp.php?usr='.$email.'&&pss='.$password);
+	}
+	else
+	{
+	header('location:error.php');
+	}
+}
+?><!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>DDoS attack</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- favicon
+		============================================ -->
+    <link rel="shortcut icon" type="image/x-icon" href="img/cloud.png">
+    <!-- Google Fonts
+		============================================ -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
+    <!-- Bootstrap CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- font awesome CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <!-- owl.carousel CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/owl.carousel.css">
+    <link rel="stylesheet" href="css/owl.theme.css">
+    <link rel="stylesheet" href="css/owl.transitions.css">
+    <!-- animate CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/animate.css">
+    <!-- normalize CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <!-- mCustomScrollbar CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/scrollbar/jquery.mCustomScrollbar.min.css">
+    <!-- wave CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/wave/waves.min.css">
+    <!-- Notika icon CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/notika-custom-icon.css">
+    <!-- main CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/main.css">
+    <!-- style CSS
+		============================================ -->
+    <link rel="stylesheet" href="style.css">
+    <!-- responsive CSS
+		============================================ -->
+    <link rel="stylesheet" href="css/responsive.css">
+    <!-- modernizr JS
+		============================================ -->
+    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+</head>
+<style>
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button4 {background-color: #00c292; color: white;} /* Gray */ 
+
+</style>
+<body>
+    <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <!-- Login Register area Start-->
+    <div class="login-content">
+        <!-- Login -->
+        <div class="nk-block toggled" id="l-login">
+            <div class="nk-form">
+			<form name="login" action="" method="post">
+                <div class="input-group">
+                    <span class="input-group-addon nk-ic-st-pro"><i class="notika-icon notika-support"></i></span>
+                    <div class="nk-int-st">
+                        <input type="text" class="form-control" name="email" placeholder="Email">
+                    </div>
+                </div>
+                <div class="input-group mg-t-15">
+                    <span class="input-group-addon nk-ic-st-pro"><i class="notika-icon notika-edit"></i></span>
+                    <div class="nk-int-st">
+                        <input type="password" class="form-control" name="password" placeholder="Password">
+                    </div>
+                </div>
+                <center><div class="input-group mg-t-15">
+                   <a href="index1.html"> <input type="submit" name="login" class="button button4" value="Login"></a>
+                </div></center>
+				</form>
+                <a href="#l-register" data-ma-action="nk-login-switch" data-ma-block="#l-register" class="btn btn-login btn-success btn-float"><i class="notika-icon notika-right-arrow right-arrow-ant"></i></a>
+            </div>
+
+            <div class="nk-navigation nk-lg-ic">
+                <a href="#" data-ma-action="nk-login-switch" data-ma-block="#l-register"><i class="notika-icon notika-plus-symbol"></i> <span>Register</span></a>
+                <a href="#" data-ma-action="nk-login-switch" data-ma-block="#l-forget-password"><i>?</i> <span>Forgot Password</span></a>
+            </div>
+        </div>
+
+        <!-- Register -->
+        <div class="nk-block" id="l-register">
+            <div class="nk-form">
+			<form name="registration" method="post" action="">
+			
+                <div class="input-group">
+                    <span class="input-group-addon nk-ic-st-pro"><i class="notika-icon notika-support"></i></span>
+                    <div class="nk-int-st">
+                        <input type="text" class="form-control" name="username" placeholder="Username">
+                    </div>
+                </div>
+
+               
+                <div class="input-group mg-t-15">
+                    <span class="input-group-addon nk-ic-st-pro"><i class="notika-icon notika-edit"></i></span>
+                    <div class="nk-int-st">
+                        <input type="password" name="password" class="form-control" placeholder="Password">
+                    </div>
+                </div>
+
+				 <div class="input-group mg-t-15">
+                    <span class="input-group-addon nk-ic-st-pro"><i class="notika-icon notika-edit"></i></span>
+                    <div class="nk-int-st">
+                        <input type="password" name="cpassword" class="form-control" placeholder="Confirm Password">
+                    </div>
+                </div>
+				 <div class="input-group mg-t-15">
+                    <span class="input-group-addon nk-ic-st-pro"><i class="notika-icon notika-mail"></i></span>
+                    <div class="nk-int-st">
+                        <input type="text" class="form-control" name="email" placeholder="Email">
+                    </div>
+                </div>
+				
+				
+				
+				 <center><div class="input-group mg-t-15">
+                    <input type="submit" class="button button4"name="signup" value="Register">
+                </div></center>
+				</form>
+				
+                <a href="#l-login" data-ma-action="nk-login-switch" data-ma-block="#l-login" class="btn btn-login btn-success btn-float"><i class="notika-icon notika-right-arrow"></i></a>
+            </div>
+
+            <div class="nk-navigation rg-ic-stl">
+                <a href="#" data-ma-action="nk-login-switch" data-ma-block="#l-login"><i class="notika-icon notika-right-arrow"></i> <span>Sign in</span></a>
+                <a href="" data-ma-action="nk-login-switch" data-ma-block="#l-forget-password"><i>?</i> <span>Forgot Password</span></a>
+            </div>
+        </div>
+
+        <!-- Forgot Password -->
+        <div class="nk-block" id="l-forget-password">
+            <div class="nk-form">
+                <p class="text-left">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu risus. Curabitur commodo lorem fringilla enim feugiat commodo sed ac lacus.</p>
+
+                <div class="input-group">
+                    <span class="input-group-addon nk-ic-st-pro"><i class="notika-icon notika-mail"></i></span>
+                    <div class="nk-int-st">
+                        <input type="text" class="form-control" placeholder="Email Address">
+                    </div>
+                </div>
+
+                <a href="#l-login" data-ma-action="nk-login-switch" data-ma-block="#l-login" class="btn btn-login btn-success btn-float"><i class="notika-icon notika-right-arrow"></i></a>
+            </div>
+
+            <div class="nk-navigation nk-lg-ic rg-ic-stl">
+                <a href="" data-ma-action="nk-login-switch" data-ma-block="#l-login"><i class="notika-icon notika-right-arrow"></i> <span>Sign in</span></a>
+                <a href="" data-ma-action="nk-login-switch" data-ma-block="#l-register"><i class="notika-icon notika-plus-symbol"></i> <span>Register</span></a>
+            </div>
+        </div>
+    </div>
+    <!-- Login Register area End-->
+    <!-- jquery
+		============================================ -->
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <!-- bootstrap JS
+		============================================ -->
+    <script src="js/bootstrap.min.js"></script>
+    <!-- wow JS
+		============================================ -->
+    <script src="js/wow.min.js"></script>
+    <!-- price-slider JS
+		============================================ -->
+    <script src="js/jquery-price-slider.js"></script>
+    <!-- owl.carousel JS
+		============================================ -->
+    <script src="js/owl.carousel.min.js"></script>
+    <!-- scrollUp JS
+		============================================ -->
+    <script src="js/jquery.scrollUp.min.js"></script>
+    <!-- meanmenu JS
+		============================================ -->
+    <script src="js/meanmenu/jquery.meanmenu.js"></script>
+    <!-- counterup JS
+		============================================ -->
+    <script src="js/counterup/jquery.counterup.min.js"></script>
+    <script src="js/counterup/waypoints.min.js"></script>
+    <script src="js/counterup/counterup-active.js"></script>
+    <!-- mCustomScrollbar JS
+		============================================ -->
+    <script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
+    <!-- sparkline JS
+		============================================ -->
+    <script src="js/sparkline/jquery.sparkline.min.js"></script>
+    <script src="js/sparkline/sparkline-active.js"></script>
+    <!-- flot JS
+		============================================ -->
+    <script src="js/flot/jquery.flot.js"></script>
+    <script src="js/flot/jquery.flot.resize.js"></script>
+    <script src="js/flot/flot-active.js"></script>
+    <!-- knob JS
+		============================================ -->
+    <script src="js/knob/jquery.knob.js"></script>
+    <script src="js/knob/jquery.appear.js"></script>
+    <script src="js/knob/knob-active.js"></script>
+    <!--  Chat JS
+		============================================ -->
+    <script src="js/chat/jquery.chat.js"></script>
+    <!--  wave JS
+		============================================ -->
+    <script src="js/wave/waves.min.js"></script>
+    <script src="js/wave/wave-active.js"></script>
+    <!-- icheck JS
+		============================================ -->
+    <script src="js/icheck/icheck.min.js"></script>
+    <script src="js/icheck/icheck-active.js"></script>
+    <!--  todo JS
+		============================================ -->
+    <script src="js/todo/jquery.todo.js"></script>
+    <!-- Login JS
+		============================================ -->
+    <script src="js/login/login-action.js"></script>
+    <!-- plugins JS
+		============================================ -->
+    <script src="js/plugins.js"></script>
+    <!-- main JS
+		============================================ -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>
